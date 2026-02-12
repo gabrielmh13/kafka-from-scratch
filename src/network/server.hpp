@@ -13,4 +13,5 @@ private:
 
     void SetupSocket();
     void AcceptClient();
+    void HandleClient(int client_fd);
 };

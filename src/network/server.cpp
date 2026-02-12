@@ -1,10 +1,13 @@
 #include "server.hpp"
+#include "../protocol/parser.hpp"
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <cstdint>
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 
 Server::Server(int port, int backlog) 
     : port_(port), backlog_(backlog) {}
@@ -59,5 +62,25 @@ void Server::AcceptClient(){
 
     std::cout << "Client connected!" << std::endl;
 
-    close(client_fd);
+    HandleClient(client_fd);
+}
+
+void Server::HandleClient(int client_fd){
+    std::vector<uint8_t> buffer(1024);
+    while(true){
+        ssize_t bytes_received = recv(client_fd, buffer.data(), buffer.size(), 0);
+        if(bytes_received < 0){
+            throw std::runtime_error("Client disconnected or error");
+        }
+
+        buffer.resize(bytes_received);
+
+        Parser parser;
+        Header header = parser.ParseHeader(buffer);
+
+        std::cout << "Message size: " << header.msg_size << std::endl;
+        std::cout << "Request API key: " << header.request_api_key << std::endl;
+        std::cout << "Request API Version: " << header.request_api_version << std::endl;
+        std::cout << "Correlation ID: " << header.correlation_id << std::endl;
+    }
 }

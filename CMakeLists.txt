@@ -8,7 +8,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(kafka
     src/main.cpp
-    src/server.cpp
+    
+    # network
+    src/network/server.cpp
+
+    #protocol
+    src/protocol/parser.cpp
 )
 
 target_include_directories(kafka PRIVATE include)
