@@ -5,8 +5,8 @@
 #include <stdexcept>
 #include <cstring>
 
-Header Parser::ParseHeader(std::vector<uint8_t>& buffer){
-    if(buffer.size() < 12){
+Header Parser::ParseHeader(const std::vector<uint8_t>& buffer){
+    if(buffer.size() < 14){
         throw std::runtime_error("Header too small");
     }
 
@@ -30,6 +30,20 @@ Header Parser::ParseHeader(std::vector<uint8_t>& buffer){
     std::memcpy(&tmp32, buffer.data() + offset, 4);
     header.correlation_id = ntohl(tmp32);
     offset += 4;
+
+    std::memcpy(&tmp16, buffer.data() + offset, 2);
+    int16_t client_id_length = static_cast<int16_t>(ntohs(tmp16));
+    offset += 2;
+    if(client_id_length > 0){
+        if(offset + client_id_length > buffer.size()){
+            throw std::runtime_error("Buffer too small for client_id");
+        }
+
+        header.client_id.assign(reinterpret_cast<const char*>(buffer.data() + offset), client_id_length);
+        offset += client_id_length;
+    } else {
+        header.client_id.clear();
+    }
 
     return header;
 }

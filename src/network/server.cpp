@@ -82,5 +82,6 @@ void Server::HandleClient(int client_fd){
         std::cout << "Request API key: " << header.request_api_key << std::endl;
         std::cout << "Request API Version: " << header.request_api_version << std::endl;
         std::cout << "Correlation ID: " << header.correlation_id << std::endl;
+        std::cout << "Client ID: " << header.client_id << std::endl;
     }
 }
